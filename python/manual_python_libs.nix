@@ -1,7 +1,7 @@
 # Pkgs: nixpkgs { inherit system };
 # Pythonpkg: pkgs.python310Packages (for python 3.10);
 
-pkgs: pythonpkg: let 
+pkgs: pythonpkg: let
   lib = pkgs.lib;
 in {
   tensorflow-hub = pythonpkg.buildPythonPackage rec {
