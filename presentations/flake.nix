@@ -19,15 +19,15 @@
       installPhase = backend.install args;
     };
 
+    mkDevShell = pkgs.lib.mkShell { buildInputs = [ backend.package ]; };
+    startDevSrv = backend.dev;
   in {
-    lib.${system} = { inherit mkPresentation; };
+    lib.${system} = { inherit mkPresentation startDevSrv; };
     packages.${system}.default = mkPresentation {
       name = "test_presentation";
       src = ./test.md;      
     };
-    apps.${system}.default = { type = "app"; program = "${backend.dev 4100}"; };
-    shell.${system}.default = pkgs.lib.mkShell {
-      buildInputs = [ backend.package ];
-    };
+    apps.${system}.default = { type = "app"; program = "${startDevSrv 4100}"; };
+    shell.${system}.default = mkDevShell;
   };
 }
