@@ -1,10 +1,13 @@
-title: My Presentation 2
+title: My Presentation
+author: Author
+company: Company
+year: 2023
 class: animation-fade
 layout: true
 
 <!-- This slide will serve as the base layout for all your slides -->
 .bottom-bar[
-  {{title}}
+  {{title}} - {{author}} © {{company}} {{year}}
 ]
 
 ---
@@ -77,3 +80,25 @@ Use to the included **grid layout** classes to split content easily:
 ## Learn the tricks
 
 See the [wiki](https://github.com/gnab/remark/wiki) to learn more of what you can do with .alt[Remark.js]
+
+---
+
+# Some code
+
+Let's write an example
+
+--
+
+``` rust
+fn test_rust_code() -> Result<usize, Option<()>> {
+  Ok(3)
+}
+```
+
+--
+
+Some piece embedded: `fn test_test_test()` but that's ok
+
+--
+
+> Some quote
