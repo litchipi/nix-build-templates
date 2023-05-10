@@ -102,3 +102,14 @@ Some piece embedded: `fn test_test_test()` but that's ok
 --
 
 > Some quote
+
+---
+
+# Test table
+
+| Beep |   No.  |   Boop |
+| :--- | :----: | -----: |
+| beep |  1024  |    xyz |
+| boop | 338845 |    tuv |
+| foo  |  10106 | qrstuv |
+| bar  |   45   |   lmno |

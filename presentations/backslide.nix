@@ -24,7 +24,9 @@ in
     mv dist/ $out
   '';
   dev = port: pkgs.writeShellScript "backslide_dev" ''
-    ln -s ${./template} ./template
+    if ! [ -e ./template ]; then
+      ln -s ${./template} ./template
+    fi
     ${backslide}/bin/bs serve . -p ${builtins.toString port}
     rm ./template
   '';

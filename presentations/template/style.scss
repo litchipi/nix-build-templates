@@ -165,6 +165,15 @@ blockquote {
 .light-bg { background-color: $light; }
 .alt-bg { background-color: $secondary; };
 
+table, th, td {
+  border-collapse: collapse;
+  border: 1px solid;
+}
+
+td, th {
+  padding: 10px;
+}
+
 // Simple 12-columns grid system
 .row {
   width: 100%;
@@ -173,7 +182,9 @@ blockquote {
     display: table;
     clear: both;
   }
-  &.table { display: table; };
+  &.table {
+    display: table;
+  };
   &.table [class^="col-"] {
     float: none;
     display: table-cell;
