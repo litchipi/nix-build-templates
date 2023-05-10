@@ -13,12 +13,13 @@
   };
 in
 {
+  addBuildInputs = [
+  ];
   package = backslide;
   build = { name, src, ... }: ''
     cp -r ${./template} ./template
     cp $src ./${name}.md
-    ls -l
-    bs export
+    bs export -o ./dist
   '';
   install = { ... }: ''
     mv dist/ $out
