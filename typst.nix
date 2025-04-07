@@ -5,7 +5,7 @@ pkgs: let
     echo "${dep.name}-${dep.version} dependency copied to $HOME/.cache/typst/ directory"
   '') deps);
 
-  mkTypstDocs = {
+  mkPolyluxPresentation = {
     common,
     fonts,
     typst_deps,
@@ -108,5 +108,5 @@ in {
     };
   };
 
-  inherit mkTypstDocs setup_typst_deps;
+  inherit setup_typst_deps mkPolyluxPresentation;
 }
