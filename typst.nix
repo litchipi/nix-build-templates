@@ -5,85 +5,59 @@ pkgs: let
     echo "${dep.name}-${dep.version} dependency copied to $HOME/.cache/typst/ directory"
   '') deps);
 
-  mkPolyluxPresentation = {
+  baseDeriv = buildScript: {
     common,
     fonts,
     typst_deps,
     mkdir ? true,
-    presentation ? false,
   }: src: pkgs.stdenv.mkDerivation {
-      name = builtins.baseNameOf src;
-      inherit src;
-      buildInputs = [ pkgs.typst pkgs.bash ];
+    name = builtins.baseNameOf src;
+    inherit src;
+    buildInputs = [ pkgs.typst pkgs.bash ];
 
-      phases = ["unpackPhase" "configurePhase" "buildPhase"];
+    phases = ["unpackPhase" "configurePhase" "buildPhase"];
 
-      unpackPhase = ''
-        export HOME=$(realpath ./.home)
-        ${setup_typst_deps typst_deps}
-        cp -r ${src} ./src
-        chmod +w -R src
-      '';
+    unpackPhase = ''
+      export HOME=$(realpath ./.home)
+      ${setup_typst_deps typst_deps}
+      cp -r ${src} ./src
+      chmod +w -R src
+    '';
 
-      configurePhase = ''
-      '';
+    configurePhase = ''
+    '';
 
-      buildPhase = ''
-        cd src
-        ln -s ${common} ./common
-        mkdir -p $out
+    buildPhase = ''
+      cd src
+      ln -s ${common} ./common
+      mkdir -p $out
 
-        find . -name "*.typ" -type f -print0 | while read -d $'\0' fpath; do
-          unset SOURCE_DATE_EPOCH
-          export HOME=$(realpath ../.home)
-          export TYPST_FONT_PATHS=${fonts}
-          export SRC=$(realpath .)
-          set -e
-          rootd=$(realpath `dirname $fpath`)
-          fname=$(basename $fpath)
-      ''
+      find . -name "*.typ" -type f -print0 | while read -d $'\0' fpath; do
+        unset SOURCE_DATE_EPOCH
+        export HOME=$(realpath ../.home)
+        export TYPST_FONT_PATHS=${fonts}
+        export SRC=$(realpath .)
+        set -e
+        rootd=$(realpath `dirname $fpath`)
+        fname=$(basename $fpath)
+    ''
       + (if (! mkdir) then ''
           prefix=$(echo "''${rootd#$SRC}/" | cut -d'/' -f2- | sed 's+/+_+g')
       ''
       else ''
           prefix=$(echo "''${rootd#$SRC}/" | cut -d'/' -f2-)
           mkdir -p "$out/''${prefix}"
-      '')
+      '') + ''
 
-      + ''
-          outfname="''${prefix}''${fname%.typ}.pdf"
-          echo "Generating PDF for $outfname"
+        ${buildScript}
 
-          docout="''${fpath%.typ}_doc.typ"
-          cp $fpath "$docout"
-          sed -i "s/#show: later/#v(0pt)/g" $docout
-
-          typst compile \
-            --root "$SRC" \
-            "$docout" \
-            "$out/$outfname"
-      ''
-
-      + (if (presentation) then ''
-          presout="''${fpath%.typ}_pres.typ"
-          cp $fpath "$presout"
-          sed -i "s+#code_annex+#silence+g" $presout
-          sed -i "s+#annex+#silence+g" $presout
-
-          if grep -q "#show: later" $presout; then
-            mkdir -p $(dirname "$out/presentation/''${outfname}")
-            typst compile \
-              --root "$SRC" \
-              "$presout" \
-              "$out/presentation/''$outfname"
-          fi
-      '' else "")
-
-      + ''
       done
-      '';
-    };
+    '';
+  };
+
 in {
+  inherit setup_typst_deps;
+
   typstpkgs = {
     suiji = {
       name = "suiji";
@@ -108,5 +82,39 @@ in {
     };
   };
 
-  inherit setup_typst_deps mkPolyluxPresentation;
+  mkTypstDocs = baseDeriv ''
+    outfname="''${prefix}''${fname%.typ}.pdf"
+    echo "Generating PDF for $outfname"
+    typst compile \
+      --root "$SRC" \
+      "$fpath" \
+      "$out/$outfname"
+  '';
+
+  mkPolyluxPresentation = baseDeriv ''
+    outfname="''${prefix}''${fname%.typ}.pdf"
+    echo "Generating PDF for $outfname"
+
+    docout="''${fpath%.typ}_doc.typ"
+    cp $fpath "$docout"
+    sed -i "s/#show: later/#v(0pt)/g" $docout
+
+    typst compile \
+      --root "$SRC" \
+      "$docout" \
+      "$out/$outfname"
+
+    presout="''${fpath%.typ}_pres.typ"
+    cp $fpath "$presout"
+    sed -i "s+#code_annex+#silence+g" $presout
+    sed -i "s+#annex+#silence+g" $presout
+
+    if grep -q "#show: later" $presout; then
+      mkdir -p $(dirname "$out/presentation/''${outfname}")
+      typst compile \
+        --root "$SRC" \
+        "$presout" \
+        "$out/presentation/''$outfname"
+    fi
+  '';
 }
