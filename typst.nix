@@ -119,7 +119,8 @@ in {
   '';
 
   mkDocFromText = { name, version, text, config }: pkgs.stdenv.mkDerivation {
-    inherit name version;
+    pname = name;
+    inherit version;
     phases = ["buildPhase"];
     buildInputs = [ pkgs.typst pkgs.bash ];
     buildPhase = ''
