@@ -117,4 +117,23 @@ in {
         "$out/presentation/''$outfname"
     fi
   '';
+
+  mkDocFromText = { name, version, text, config }: pkgs.stdenv.mkDerivation {
+    inherit name version;
+    phases = ["buildPhase"];
+    buildInputs = [ pkgs.typst pkgs.bash ];
+    buildPhase = ''
+      cat << EOF > ./src.typ
+      ${text}
+      EOF
+
+      export HOME=$(realpath ./.home)
+      ${setup_typst_deps config.typst_deps}
+      ln -s ${config.common} ./common
+      unset SOURCE_DATE_EPOCH
+      export TYPST_FONT_PATHS=${config.fonts}
+      mkdir -p $out
+      typst compile ./src.typ $out/${name}-${version}.pdf
+    '';
+  };
 }
