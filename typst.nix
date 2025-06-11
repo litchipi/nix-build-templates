@@ -9,11 +9,13 @@ pkgs: let
     common,
     fonts,
     typst_deps,
+    addDeps ? [],
+    addFiles ? [],
     mkdir ? true,
-  }: src: pkgs.stdenv.mkDerivation {
+  ... }: src: pkgs.stdenv.mkDerivation {
     name = builtins.baseNameOf src;
     inherit src;
-    buildInputs = [ pkgs.typst pkgs.bash ];
+    buildInputs = [ pkgs.typst pkgs.bash ] ++ addDeps;
 
     phases = ["unpackPhase" "configurePhase" "buildPhase"];
 
@@ -52,6 +54,11 @@ pkgs: let
         ${buildScript}
 
       done
+
+      ${builtins.concatStringsSep "\n" (builtins.map (f: ''
+        dirname ${f} | xargs realpath --relative-to=$PWD | xargs mkdir -p
+        cp ./${f} $out/${f}
+      '') addFiles)}
     '';
   };
 
