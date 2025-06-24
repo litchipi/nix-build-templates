@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unsable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -11,22 +11,32 @@
     pythonpkg = python_version.withPackages (p: with p; [
     ]);
 
-    start = pkgs.writeShellScript "start" ''
-      ${pythonpkg}/bin/python ./script.py
-    '';
-
-  in {
-    apps.default = {
-      type = "app";
-      program = "${start}";
+    env = {
     };
 
-    devShells.default = pkgs.mkShell {
-      buildInputs = [
-        pythonpkg
-      ];
+    envexport = builtins.concatStringsSep "\n" (pkgs.lib.attrsets.mapAttrsToList
+      (n: v: "export ${n}=${v}")
+    ) env;
+
+    mkApp = name: script: {
+      type = "app";
+      program = let
+        f = pkgs.writeShellScript name ''
+          ${envexport}
+
+          ${script}
+        '';
+      in "${f}";
+    };
+  in {
+    apps = builtins.mapAttrs mkApp {
+      default = "${pythonpkg}/bin/python ./script.py";
+    };
+
+    devShells.default = pkgs.mkShell ({
+      buildInputs = [ pythonpkg ];
       PYTHONPATH = "${pythonpkg}/${pythonpkg.sitePackages}:$PYTHONPATH";
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib$LD_LIBRARY_PATH";
-    };
+    } // env);
   });
 }
