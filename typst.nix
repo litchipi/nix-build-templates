@@ -68,12 +68,12 @@ in {
   typstpkgs = {
     suiji = {
       name = "suiji";
-      version = "0.3.0";
+      version = "0.4.0";
       src = pkgs.fetchFromGitHub {
         owner = "liuguangxi";
         repo = "suiji";
-        rev = "b3e6110cf2a2059f24ef80f8b174068396b56f92";
-        sha256 = "sha256-3nhoXurMkr2Gn+lwC9wlKsmBvrLomeAwK5+cdTn1Q5c=";
+        rev = "2c8216555252b76cf2e8e0baad8787de30d67299";
+        sha256 = "sha256-iddw2zPuu/0qzuR6Ys+xtr/cvPm9ry6b564KvjQwuAc=";
       };
     };
 
